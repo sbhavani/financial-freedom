@@ -34,7 +34,7 @@ services:
       VITE_HMR_PORT: "5173"
       VITE_PORT: "5173"
       PORT: "3000"
-      NEXT_PUBLIC_API_URL: "https://php:8443"
+      NEXT_PUBLIC_API_URL: "https://mac-mini-i7.local:8443"
       NODE_TLS_REJECT_UNAUTHORIZED: "0"
     volumes:
       - .:/usr/src/app/:cached

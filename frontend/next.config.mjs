@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
-    // Use environment variable or default to localhost
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8443';
+    // Use environment variable or default to mac-mini-i7.local (works for both local and remote)
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mac-mini-i7.local:8443';
 
     return [
       {
