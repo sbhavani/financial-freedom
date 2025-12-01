@@ -27,6 +27,7 @@ services:
       - development
     ports:
       - "5173:5173"
+      - "3000:3000"
     environment:
       VITE_HOST: "0.0.0.0"
       VITE_HMR_HOST: "mac-mini-i7.local"
