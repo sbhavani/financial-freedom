@@ -75,10 +75,10 @@
                             </tr>
                             <tr>
                                 <td class="py-4 pl-4">
-                                    <span class="font-bold text-[#CECFD2]">Direction (Optional)</span>
+                                    <span class="font-bold text-[#CECFD2]">Type (Optional)</span>
                                 </td>
                                 <td class="py-4 px-2">
-                                    <select v-model="fieldMap.direction" class="block w-full rounded-md bg-transparent border border-[#333741] text-[#CECFD2] py-2 px-3">
+                                    <select v-model="fieldMap.type" class="block w-full rounded-md bg-transparent border border-[#333741] text-[#CECFD2] py-2 px-3">
                                         <option value=""></option>
                                         <option v-for="(headerField, index) in header"
                                             :key="index"
@@ -89,7 +89,7 @@
                                 </td>
                                 <td class="py-4 px-2 w-3/5">
                                     <div class="text-[#CECFD2] text-sm max-w-lg truncate">
-                                        {{ directionPreview }}
+                                        {{ typePreview }}
                                     </div>
                                 </td>
                             </tr>
@@ -133,7 +133,7 @@ if( form.account.import_map ){
     fieldMap.name = form.account.import_map.name;
     fieldMap.date = form.account.import_map.date;
     fieldMap.amount = form.account.import_map.amount;
-    fieldMap.direction = form.account.import_map.direction || '';
+    fieldMap.type = form.account.import_map.type || '';
 }
 
 const namePreview = computed(() => {
@@ -178,12 +178,12 @@ const amountPreview = computed(() => {
     }
 });
 
-const directionPreview = computed(() => {
-    if( fieldMap.direction != '' ){
+const typePreview = computed(() => {
+    if( fieldMap.type != '' ){
         let preview = [];
 
         for( let i = 0; i < 3; i++ ) {
-            preview.push(csvData.value[i][fieldMap.direction]);
+            preview.push(csvData.value[i][fieldMap.type]);
         }
 
         return preview.join(', ');

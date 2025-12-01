@@ -14,7 +14,7 @@ const fieldMap = reactive({
     name: '',
     date: '',
     amount: '',
-    direction: ''
+    type: ''
 });
 const rules = ref([]);
 const header = ref([]);
@@ -49,13 +49,13 @@ export const useImportTransactions = () => {
         for( let i = 0; i < csvData.value.length; i++ ){
             let direction = 'debit';
 
-            // If direction is mapped from CSV, use that value
-            if( fieldMap.direction ){
-                const csvDirection = csvData.value[i][fieldMap.direction]?.toLowerCase();
-                if( csvDirection === 'credit' || csvDirection === 'debit' || csvDirection === 'transfer' || csvDirection === 'payment' ){
-                    direction = csvDirection;
+            // If type is mapped from CSV, use that value
+            if( fieldMap.type ){
+                const csvType = csvData.value[i][fieldMap.type]?.toLowerCase();
+                if( csvType === 'credit' || csvType === 'debit' || csvType === 'transfer' || csvType === 'payment' ){
+                    direction = csvType;
                 }else{
-                    // Fall back to auto-detect if CSV value doesn't match expected directions
+                    // Fall back to auto-detect if CSV value doesn't match expected types
                     direction = parseFloat( csvData.value[i][fieldMap.amount] ) > 0 ? 'credit' : 'debit';
                 }
             }else{
@@ -178,7 +178,7 @@ export const useImportTransactions = () => {
         fieldMap.name = '';
         fieldMap.date = '';
         fieldMap.amount = '';
-        fieldMap.direction = '';
+        fieldMap.type = '';
         rules.value = [];
         header.value = [];
         csvData.value = [];
