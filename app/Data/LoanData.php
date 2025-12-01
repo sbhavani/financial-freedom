@@ -13,7 +13,7 @@ class LoanData extends Data
         public int|Optional $institutionId,
         public string $name,
         public string $type,
-        public string $description,
+        public string|Optional $description,
         public string $dateOpened,
         public float $interestRate,
         public float $remainingBalance,

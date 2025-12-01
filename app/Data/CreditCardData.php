@@ -13,7 +13,7 @@ class CreditCardData extends Data
         public int|Optional $institutionId,
         public string $brand,
         public string $name,
-        public string $description,
+        public string|Optional $description,
         public float $interestRate,
         public float $creditLimit,
         public float $balance

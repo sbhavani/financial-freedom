@@ -13,7 +13,7 @@ class CashAccountData extends Data
         public int|Optional $institutionId,
         public string $type,
         public string $name,
-        public string $description,
+        public string|Optional $description,
         public float $balance,
         public float $interestRate,
     ){}
