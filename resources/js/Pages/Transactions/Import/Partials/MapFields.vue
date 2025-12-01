@@ -60,8 +60,8 @@
                                 <td class="py-4 px-2">
                                     <select v-model="fieldMap.amount" class="block w-full rounded-md bg-transparent border border-[#333741] text-[#CECFD2] py-2 px-3">
                                         <option value=""></option>
-                                        <option v-for="(headerField, index) in header" 
-                                            :key="index" 
+                                        <option v-for="(headerField, index) in header"
+                                            :key="index"
                                             :value="headerField">
                                                 {{ headerField }}
                                         </option>
@@ -70,6 +70,26 @@
                                 <td class="py-4 px-2 w-3/5">
                                     <div class="text-[#CECFD2] text-sm max-w-lg truncate">
                                         {{ amountPreview }}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 pl-4">
+                                    <span class="font-bold text-[#CECFD2]">Direction (Optional)</span>
+                                </td>
+                                <td class="py-4 px-2">
+                                    <select v-model="fieldMap.direction" class="block w-full rounded-md bg-transparent border border-[#333741] text-[#CECFD2] py-2 px-3">
+                                        <option value=""></option>
+                                        <option v-for="(headerField, index) in header"
+                                            :key="index"
+                                            :value="headerField">
+                                                {{ headerField }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td class="py-4 px-2 w-3/5">
+                                    <div class="text-[#CECFD2] text-sm max-w-lg truncate">
+                                        {{ directionPreview }}
                                     </div>
                                 </td>
                             </tr>
@@ -112,7 +132,8 @@ const saveMapping = ref(false);
 if( form.account.import_map ){
     fieldMap.name = form.account.import_map.name;
     fieldMap.date = form.account.import_map.date;
-    fieldMap.amount = form.account.import_map.amount
+    fieldMap.amount = form.account.import_map.amount;
+    fieldMap.direction = form.account.import_map.direction || '';
 }
 
 const namePreview = computed(() => {
@@ -149,6 +170,20 @@ const amountPreview = computed(() => {
 
         for( let i = 0; i < 3; i++ ) {
             preview.push(csvData.value[i][fieldMap.amount]);
+        }
+
+        return preview.join(', ');
+    }else{
+        return '';
+    }
+});
+
+const directionPreview = computed(() => {
+    if( fieldMap.direction != '' ){
+        let preview = [];
+
+        for( let i = 0; i < 3; i++ ) {
+            preview.push(csvData.value[i][fieldMap.direction]);
         }
 
         return preview.join(', ');
