@@ -1,0 +1,10 @@
+# Remote development override - use this when accessing from other machines
+# Change mac-mini-i7.local to your actual hostname
+
+services:
+  node:
+    environment:
+      VITE_HOST: "0.0.0.0"
+      VITE_HMR_HOST: "mac-mini-i7.local"
+      VITE_HMR_PORT: "5173"
+      VITE_PORT: "5173"

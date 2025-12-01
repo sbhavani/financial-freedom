@@ -1,0 +1,10 @@
+# Local development override - use this instead of docker-compose.dev.yml
+# This configures the app to work on localhost
+
+services:
+  node:
+    environment:
+      VITE_HOST: "0.0.0.0"
+      VITE_HMR_HOST: "localhost"
+      VITE_HMR_PORT: "5173"
+      VITE_PORT: "5173"

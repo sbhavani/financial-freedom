@@ -20,9 +20,6 @@ entryPoints:
   websecure:
     address: ":443"
 
-  vite:
-    address: ":5173"
-
 accessLog: {}
 log:
   level: ERROR
