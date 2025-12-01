@@ -150,10 +150,12 @@ const formatDate = (date) => {
 
 const formatAmount = (amount) => {
     // Amount should be a number from the backend, but ensure it's parsed
+    console.log('formatAmount input:', { amount, type: typeof amount, value: String(amount) });
+
     const numAmount = typeof amount === 'number' ? amount : parseFloat(amount);
 
     if (isNaN(numAmount)) {
-        console.warn('Invalid amount:', amount);
+        console.warn('Invalid amount after parseFloat:', { amount, numAmount });
         return '-';
     }
 
