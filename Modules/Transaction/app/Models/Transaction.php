@@ -26,9 +26,6 @@ class Transaction extends Model
         'original'
     ];
 
-    protected $casts = [
-        'amount' => 'float',
-    ];
 
     public function accountable()
     {
