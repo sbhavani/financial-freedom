@@ -27,15 +27,16 @@ services:
       - development
     ports:
       - "5173:5173"
-      - "3000:3000"
+      - "3001:3000"
     environment:
       VITE_HOST: "0.0.0.0"
       VITE_HMR_HOST: "mac-mini-i7.local"
       VITE_HMR_PORT: "5173"
       VITE_PORT: "5173"
+      PORT: "3000"
     volumes:
       - .:/usr/src/app/:cached
-    working_dir: /usr/src/app/
+    working_dir: /usr/src/app/frontend
     command: npm run dev
 
   mailpit:
