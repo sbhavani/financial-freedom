@@ -36,6 +36,11 @@ class ImportTransactions
     private function createTransactions( $transactions )
     {
         foreach( $transactions as $transaction ){
+            // Skip transactions with missing required fields
+            if( !$transaction['amount'] || !$transaction['date'] || !$transaction['name'] ){
+                continue;
+            }
+
             Transaction::create([
                 'uuid' => Str::uuid(),
                 'user_id' => auth()->id(),

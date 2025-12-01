@@ -172,6 +172,12 @@ const accountMapUrl = computed(() => {
 });
 
 const next = () => {
+    // Validate that all required fields are mapped
+    if (!fieldMap.name || !fieldMap.date || !fieldMap.amount) {
+        alert('Please map all required fields (Name, Date, Amount)');
+        return;
+    }
+
     if( saveMapping.value ){
         router.put(accountMapUrl.value, {
             import_map: fieldMap
