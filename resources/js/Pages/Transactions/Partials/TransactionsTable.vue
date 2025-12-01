@@ -15,7 +15,7 @@
                         <tr v-for="(transaction, transactionIndex) in transactions" 
                             :key="'transaction-'+transaction.id" class="border-b border-[#1F242F]">
                                 <td class="pl-6 py-4 text-[#F5F5F6] font-sans text-sm">{{ transaction.merchant }}</td>
-                                <td class="py-4 text-[#F5F5F6] font-sans text-sm">{{ formatAmount(transaction.amount) }}</td>
+                                <td class="py-4 text-[#F5F5F6] font-sans text-sm">{{ formatAmount(transaction) }}</td>
                                 <td class="py-4 font-sans text-sm text-[#F5F5F6] font-medium">
                                     <span v-if="transaction.category" class="text-xs font-sans font-medium leading-[18px] px-[6px] py-[2px] inline-flex items-center border border-[#333741] rounded-md">
                                         <span :style="{ backgroundColor: getCategoryColor(transaction.category.color) }" class="w-2 h-2 rounded-full mr-1"></span>
@@ -148,14 +148,20 @@ const formatDate = (date) => {
     return moment(date).format('dddd, MMMM Do YYYY');
 }
 
-const formatAmount = (amount) => {
-    // Amount should be a number from the backend, but ensure it's parsed
-    console.log('formatAmount input:', { amount, type: typeof amount, value: String(amount) });
+const formatAmount = (transaction) => {
+    // The amount comes pre-formatted from the backend as "$X,XXX.XX"
+    // Just return it directly if it's a string with currency formatting
+    if (typeof transaction.amount === 'string' && transaction.amount.startsWith('$')) {
+        return transaction.amount;
+    }
 
-    const numAmount = typeof amount === 'number' ? amount : parseFloat(amount);
+    // Fallback for raw numeric amounts
+    const numAmount = typeof transaction.amount === 'number'
+        ? transaction.amount
+        : parseFloat(transaction.amount);
 
     if (isNaN(numAmount)) {
-        console.warn('Invalid amount after parseFloat:', { amount, numAmount });
+        console.warn('Invalid amount:', transaction.amount);
         return '-';
     }
 
