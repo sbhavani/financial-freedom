@@ -149,14 +149,14 @@ const formatDate = (date) => {
 }
 
 const formatAmount = (amount) => {
-    if (!amount && amount !== 0) {
-        return '-';
-    }
-    const numAmount = parseFloat(amount);
+    // Amount should be a number from the backend, but ensure it's parsed
+    const numAmount = typeof amount === 'number' ? amount : parseFloat(amount);
+
     if (isNaN(numAmount)) {
         console.warn('Invalid amount:', amount);
         return '-';
     }
+
     return currency.format(numAmount);
 }
 </script>
