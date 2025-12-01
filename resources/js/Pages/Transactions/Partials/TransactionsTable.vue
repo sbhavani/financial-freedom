@@ -15,7 +15,7 @@
                         <tr v-for="(transaction, transactionIndex) in transactions" 
                             :key="'transaction-'+transaction.id" class="border-b border-[#1F242F]">
                                 <td class="pl-6 py-4 text-[#F5F5F6] font-sans text-sm">{{ transaction.merchant }}</td>
-                                <td class="py-4 text-[#F5F5F6] font-sans text-sm">{{ currency.format( transaction.amount ) }}</td>
+                                <td class="py-4 text-[#F5F5F6] font-sans text-sm">{{ currency.format( parseFloat(transaction.amount) ) }}</td>
                                 <td class="py-4 font-sans text-sm text-[#F5F5F6] font-medium">
                                     <span v-if="transaction.category" class="text-xs font-sans font-medium leading-[18px] px-[6px] py-[2px] inline-flex items-center border border-[#333741] rounded-md">
                                         <span :style="{ backgroundColor: getCategoryColor(transaction.category.color) }" class="w-2 h-2 rounded-full mr-1"></span>
