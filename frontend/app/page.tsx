@@ -1,43 +1,47 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import Link from 'next/link'
+import { useAuth } from '@/hooks/auth'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
-  const [message, setMessage] = useState('Loading...');
+    const { user } = useAuth({ middleware: 'guest' })
+    const router = useRouter()
 
-  useEffect(() => {
-    fetch('/api/user', {
-        headers: {
-            'Accept': 'application/json',
+    useEffect(() => {
+        if (user) {
+            router.push('/dashboard')
         }
-    })
-      .then(res => {
-        if (res.status === 401) {
-            return { message: 'Unauthenticated (as expected if not logged in)' };
-        }
-        return res.json();
-      })
-      .then(data => setMessage(JSON.stringify(data)))
-      .catch(err => setMessage('Error connecting to API'));
-  }, []);
+    }, [user, router])
 
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1 className="text-4xl font-bold">Financial Freedom Next.js Frontend</h1>
-        <p>API Connection Status: {message}</p>
+    return (
+        <div className="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
+            <div className="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+                {user ? (
+                    <Link href="/dashboard" className="text-sm text-gray-700 underline">
+                        Dashboard
+                    </Link>
+                ) : (
+                    <>
+                        <Link href="/login" className="text-sm text-gray-700 underline">
+                            Log in
+                        </Link>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+                        <Link href="/register" className="ml-4 text-sm text-gray-700 underline">
+                            Register
+                        </Link>
+                    </>
+                )}
+            </div>
+
+            <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
+                <div className="flex justify-center pt-8 sm:justify-start sm:pt-0">
+                    <h1 className="text-6xl font-bold text-gray-800 dark:text-white">
+                        Financial Freedom
+                    </h1>
+                </div>
+            </div>
         </div>
-      </main>
-    </div>
-  );
+    )
 }

@@ -15,15 +15,26 @@ use Inertia\Response;
 
 class AccountController extends Controller
 {
-    public function index( Request $request ): Response
+    public function index( Request $request ): Response|\Illuminate\Http\JsonResponse
     {
-        return Inertia::render('Accounts/Index', [
+        $data = [
             'group' => 'accounts',
             'cashAccounts' => fn() => ( new IndexCashAccounts() )->index(),
             'creditCards' => fn() => ( new IndexCreditCards() )->index(),
             'loans' => fn() => ( new IndexLoans() )->index(),
             'institutions' => fn () => ( Institution::orderBy('name', 'ASC')->get() ),
-        ]);
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'cashAccounts' => ( new IndexCashAccounts() )->index(),
+                'creditCards' => ( new IndexCreditCards() )->index(),
+                'loans' => ( new IndexLoans() )->index(),
+                'institutions' => Institution::orderBy('name', 'ASC')->get(),
+            ]);
+        }
+
+        return Inertia::render('Accounts/Index', $data);
     }
 
     public function store( StoreAccountRequest $request ): RedirectResponse
