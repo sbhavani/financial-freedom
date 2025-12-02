@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import useSWR, { mutate } from 'swr'
 import axios from '@/lib/axios'
+import { useAuth } from '@/hooks/auth'
 import {
     Table,
     TableBody,
@@ -21,27 +22,30 @@ import {
 import { Plus, MoreHorizontal, Pencil, Trash } from 'lucide-react'
 import CategoryModal from '@/components/settings/categories/CategoryModal'
 import DeleteCategoryModal from '@/components/settings/categories/DeleteCategoryModal'
+import { Category, Group } from '@/types/category'
 
 export default function CategoriesPage() {
-    const { data: groups, error, isLoading } = useSWR('/api/settings/categories', () =>
+    const { user } = useAuth({ middleware: 'auth' })
+
+    const { data: groups, error, isLoading } = useSWR<Group[]>('/api/settings/categories', () =>
         axios.get('/api/settings/categories').then(res => res.data)
     )
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-    const [editingCategory, setEditingCategory] = useState<any>(null)
-    const [deletingCategory, setDeletingCategory] = useState<any>(null)
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+    const [deletingCategory, setDeletingCategory] = useState<Category | null>(null)
 
     const handleAdd = () => {
         setEditingCategory(null)
         setIsAddModalOpen(true)
     }
 
-    const handleEdit = (category: any) => {
+    const handleEdit = (category: Category) => {
         setEditingCategory(category)
         setIsAddModalOpen(true)
     }
 
-    const handleDelete = (category: any) => {
+    const handleDelete = (category: Category) => {
         setDeletingCategory(category)
     }
 
@@ -52,7 +56,7 @@ export default function CategoriesPage() {
         setDeletingCategory(null)
     }
 
-    if (isLoading) return <div>Loading...</div>
+    if (!user || isLoading) return <div>Loading...</div>
     if (error) return <div>Error loading categories</div>
 
     return (
@@ -70,7 +74,7 @@ export default function CategoriesPage() {
 
                 <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div className="p-6 bg-white border-b border-gray-200">
-                        {groups?.map((group: any) => (
+                        {groups?.map((group) => (
                             <div key={group.id} className="mb-8 last:mb-0">
                                 <h3 className="font-bold text-lg mb-4">{group.name}</h3>
                                 <Table>
@@ -83,7 +87,7 @@ export default function CategoriesPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {group.categories?.map((category: any) => (
+                                        {group.categories?.map((category) => (
                                             <TableRow key={category.id}>
                                                 <TableCell className="font-medium">
                                                     {category.name}

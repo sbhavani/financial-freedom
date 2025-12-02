@@ -17,3 +17,14 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/settings/categories', [App\Http\Controllers\CategoryController::class, 'index'])
+        ->name('settings.categories.index');
+    Route::post('/settings/categories', [App\Http\Controllers\CategoryController::class, 'store'])
+        ->name('settings.categories.store');
+    Route::put('/settings/categories/{category}', [App\Http\Controllers\CategoryController::class, 'update'])
+        ->name('settings.categories.update');
+    Route::delete('/settings/categories/{category}', [App\Http\Controllers\CategoryController::class, 'destroy'])
+        ->name('settings.categories.delete');
+});

@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from '@/lib/axios'
+import { Category, Group } from '@/types/category'
 import {
     Dialog,
     DialogContent,
@@ -41,9 +42,9 @@ const formSchema = z.object({
 interface CategoryModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    category?: any
+    category?: Category | null
     onSuccess: () => void
-    groups: any[]
+    groups?: Group[]
 }
 
 export default function CategoryModal({
@@ -54,6 +55,7 @@ export default function CategoryModal({
     groups,
 }: CategoryModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [serverError, setServerError] = useState<string | null>(null)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -67,6 +69,7 @@ export default function CategoryModal({
 
     useEffect(() => {
         if (open) {
+            setServerError(null)
             if (category) {
                 form.reset({
                     name: category.name,
@@ -87,6 +90,7 @@ export default function CategoryModal({
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true)
+        setServerError(null)
         try {
             if (category) {
                 await axios.put(`/api/settings/categories/${category.id}`, values)
@@ -95,9 +99,18 @@ export default function CategoryModal({
             }
             onSuccess()
             onOpenChange(false)
-        } catch (error) {
-            console.error('Failed to save category', error)
-            // Handle server-side errors if needed
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                const errors = error.response.data.errors
+                Object.keys(errors).forEach((key) => {
+                    form.setError(key as any, {
+                        type: 'manual',
+                        message: errors[key][0],
+                    })
+                })
+            } else {
+                setServerError('An unexpected error occurred. Please try again.')
+            }
         } finally {
             setIsSubmitting(false)
         }
@@ -117,6 +130,11 @@ export default function CategoryModal({
                     </DialogDescription>
                 </DialogHeader>
 
+                {serverError && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                        {serverError}
+                    </div>
+                )}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
