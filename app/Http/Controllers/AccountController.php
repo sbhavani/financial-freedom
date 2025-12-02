@@ -37,9 +37,14 @@ class AccountController extends Controller
         return Inertia::render('Accounts/Index', $data);
     }
 
-    public function store( StoreAccountRequest $request ): RedirectResponse
+    public function store( StoreAccountRequest $request ): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         ( new StoreAccount() )->store( $request );
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Account created successfully']);
+        }
+
         return redirect()->back();
     }
 
