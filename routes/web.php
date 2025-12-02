@@ -43,9 +43,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/credit-cards/{creditCard}', [CreditCardController::class, 'update'])
         ->name('credit-cards.update');
 
+    Route::get('/loans/{loan}', [LoanController::class, 'show'])
+        ->name('loans.show');
     Route::put('/loans/{loan}', [LoanController::class, 'update'])
         ->name('loans.update');
 
+    Route::get('/cash-accounts/{cashAccount}', [CashAccountController::class, 'show'])
+        ->name('cash-accounts.show');
     Route::put('/cash-accounts/{cashAccount}', [CashAccountController::class, 'update'])
         ->name('cash-accounts.update');
         

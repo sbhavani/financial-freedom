@@ -11,17 +11,40 @@ use Inertia\Response;
 
 class CreditCardController extends Controller
 {
-    public function show( CreditCard $creditCard ): Response
+    public function show( CreditCard $creditCard ): Response|\Illuminate\Http\JsonResponse
     {
+        if (request()->wantsJson()) {
+            return response()->json($creditCard->load('institution'));
+        }
+
         return Inertia::render('CreditCards/Show', [
             'group' => 'accounts',
             'creditCard' => $creditCard,
         ]);
     }
 
-    public function update( Request $request, CreditCard $creditCard ): RedirectResponse
+    public function update( Request $request, CreditCard $creditCard ): RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        ( new UpdateCreditCard( $request, $creditCard ) )->update();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'brand' => 'required|string',
+            'balance' => 'numeric',
+            'credit_limit' => 'numeric',
+            'interest_rate' => 'nullable|numeric',
+            'import_map' => 'nullable|array',
+        ]);
+
+        $creditCard->update($request->except(['import_map']));
+
+        if ($request->has('import_map')) {
+             ( new UpdateCreditCard( $request, $creditCard ) )->update();
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($creditCard);
+        }
+
         return redirect()->back();
     }
 
