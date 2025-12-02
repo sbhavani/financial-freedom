@@ -37,6 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import Papa from "papaparse";
 
 // Schema for a single transaction
 const transactionSchema = z.object({
@@ -51,7 +52,7 @@ const transactionSchema = z.object({
 const formSchema = z.object({
   accountType: z.enum(["cash-account", "credit-card", "loan"]),
   accountId: z.string().min(1, "Account is required"),
-  transactions: z.array(transactionSchema),
+  transactions: z.array(transactionSchema).min(1, "At least one transaction is required"),
 });
 
 export default function TransactionImportPage() {
@@ -103,38 +104,44 @@ export default function TransactionImportPage() {
   const parseCSV = () => {
     if (!csvInput.trim()) return;
 
-    const rows = csvInput.trim().split("\n");
-    const parsedTransactions = rows.map((row) => {
-      // Simple CSV parsing: assumes Date, Amount, Name, Notes order for now or auto-detect
-      // Let's assume a flexible format or try to split by comma or tab
-      const cols = row.split(/[\t,]/).map((c) => c.trim());
+    Papa.parse(csvInput.trim(), {
+      header: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const rows = results.data as string[][];
+        const parsedTransactions = rows.map((cols) => {
+          // Heuristic parsing
+          const dateStr = cols.find(c => !isNaN(Date.parse(c))) || format(new Date(), "yyyy-MM-dd");
 
-      // Basic heuristic parsing
-      // Try to find a date
-      const dateStr = cols.find(c => !isNaN(Date.parse(c))) || format(new Date(), "yyyy-MM-dd");
+          const amountStr = cols.find(c => /^-?[\d,]+(\.\d+)?$/.test(c.replace(/[$,]/g, ''))) || "0";
+          const amount = Math.abs(parseFloat(amountStr.replace(/[$,]/g, '')));
+          const direction = amountStr.includes("-") ? "expense" : "income";
 
-      // Try to find an amount
-      const amountStr = cols.find(c => /^-?\d+(\.\d+)?$/.test(c.replace(/[$,]/g, ''))) || "0";
-      const amount = Math.abs(parseFloat(amountStr.replace(/[$,]/g, '')));
-      const direction = amountStr.includes("-") ? "expense" : "income"; // Naive assumption, user can correct
+          const name = cols.find(c => c !== dateStr && c !== amountStr && c.length > 0) || "Unknown";
 
-      // Name is likely the longest string that is not notes
-      const name = cols.find(c => c !== dateStr && c !== amountStr && c.length > 0) || "Unknown";
+          return {
+            date: !isNaN(Date.parse(dateStr)) ? format(new Date(dateStr), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+            amount: isNaN(amount) ? 0 : amount,
+            name: name,
+            category: null,
+            notes: "",
+            direction: direction as "income" | "expense",
+          };
+        });
 
-      return {
-        date: format(new Date(dateStr), "yyyy-MM-dd"),
-        amount: amount,
-        name: name,
-        category: null,
-        notes: "",
-        direction: direction as "income" | "expense",
-      };
-    });
-
-    replace(parsedTransactions);
-    toast({
-        title: "Parsed",
-        description: `Parsed ${parsedTransactions.length} transactions. Please review before submitting.`,
+        replace(parsedTransactions);
+        toast({
+          title: "Parsed",
+          description: `Parsed ${parsedTransactions.length} transactions. Please review before submitting.`,
+        });
+      },
+      error: (error: Error) => {
+        toast({
+            title: "Error",
+            description: `Failed to parse CSV: ${error.message}`,
+            variant: "destructive"
+        });
+      }
     });
   };
 

@@ -36,8 +36,8 @@ const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   type: z.string().optional(),
-  balance: z.any().transform(v => Number(v)).optional(),
-  interest_rate: z.any().transform(v => Number(v)).optional(),
+  balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  interest_rate: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
 })
 
 interface EditCashAccountModalProps {
@@ -56,7 +56,7 @@ export default function EditCashAccountModal({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof accountSchema>>({
+  const form = useForm({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: account.name || '',
