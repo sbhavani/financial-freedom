@@ -24,6 +24,7 @@ import AddAccountModal from '@/components/accounts/AddAccountModal'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
 import { Account, AccountsData, CashAccount, CreditCard, Loan } from '@/types/account'
+import AppLayout from '@/components/AppLayout'
 
 export default function AccountsPage() {
   const { user } = useAuth({ middleware: 'auth' })
@@ -33,9 +34,9 @@ export default function AccountsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const router = useRouter()
 
-  if (!user) return <div>Loading auth...</div>
-  if (error) return <div>Failed to load accounts</div>
-  if (!data) return <div>Loading...</div>
+  if (!user) return <AppLayout><div className="text-muted-foreground">Loading...</div></AppLayout>
+  if (error) return <AppLayout><div className="text-destructive">Failed to load accounts</div></AppLayout>
+  if (!data) return <AppLayout><div className="text-muted-foreground">Loading...</div></AppLayout>
 
   const { cashAccounts, creditCards, loans } = data
 
@@ -104,18 +105,19 @@ export default function AccountsPage() {
   const totalLoans = loans?.reduce((acc, curr) => acc + (curr.remaining_balance || curr.balance || 0), 0) || 0
 
   return (
-    <div className="container mx-auto py-10 space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Accounts</h2>
-          <p className="text-muted-foreground">
-            Manage your bank accounts, credit cards, and loans.
-          </p>
+    <AppLayout>
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your bank accounts, credit cards, and loans.
+            </p>
+          </div>
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Account
+          </Button>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Account
-        </Button>
-      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -174,12 +176,13 @@ export default function AccountsPage() {
         </TabsContent>
       </Tabs>
 
-      <AddAccountModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => mutate()}
-        institutions={data.institutions || []}
-      />
-    </div>
+        <AddAccountModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={() => mutate()}
+          institutions={data.institutions || []}
+        />
+      </div>
+    </AppLayout>
   )
 }
