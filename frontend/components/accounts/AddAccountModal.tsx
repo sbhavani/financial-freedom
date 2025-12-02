@@ -80,7 +80,7 @@ export default function AddAccountModal({
     setError(null)
     setLoading(true)
     try {
-      await axios.post('/accounts', values)
+      await axios.post('/api/accounts', values)
       form.reset()
       onSuccess()
       onClose()

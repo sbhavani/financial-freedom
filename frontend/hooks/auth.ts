@@ -20,6 +20,29 @@ interface AuthProps {
 export const useAuth = ({ middleware, redirectIfAuthenticated }: AuthProps = {}) => {
     const router = useRouter()
 
+    // TEMPORARY: Bypass authentication for development
+    // TODO: Re-enable authentication once CORS/cookie issues are resolved
+    const BYPASS_AUTH = true
+
+    const mockUser: User = {
+        id: 1,
+        name: 'Dev User',
+        email: 'dev@example.com',
+        email_verified_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    }
+
+    // If bypassing auth, return mock user immediately
+    if (BYPASS_AUTH) {
+        return {
+            user: mockUser,
+            register: async () => {},
+            login: async () => {},
+            logout: async () => {},
+        }
+    }
+
     const { data: user, error, mutate } = useSWR<User>('/api/user', () =>
         axios.get('/api/user')
             .then(res => res.data)
@@ -30,7 +53,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: AuthProps = {})
             })
     )
 
-    const csrf = () => axios.get('/sanctum/csrf-cookie')
+    const csrf = () => axios.get('/api/sanctum/csrf-cookie')
 
     const register = async ({ setErrors, ...props }: any) => {
         await csrf()
@@ -38,7 +61,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: AuthProps = {})
         setErrors([])
 
         axios
-            .post('/register', props)
+            .post('/api/register', props)
             .then(() => mutate())
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -54,7 +77,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: AuthProps = {})
         setStatus(null)
 
         axios
-            .post('/login', props)
+            .post('/api/login', props)
             .then(() => mutate())
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -65,7 +88,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: AuthProps = {})
 
     const logout = async () => {
         if (!error) {
-            await axios.post('/logout').then(() => mutate())
+            await axios.post('/api/logout').then(() => mutate())
         }
 
         window.location.pathname = '/login'

@@ -28,7 +28,7 @@ import { Account, AccountsData, CashAccount, CreditCard, Loan } from '@/types/ac
 export default function AccountsPage() {
   const { user } = useAuth({ middleware: 'auth' })
   const { data, error, mutate } = useSWR<AccountsData>('/accounts', () =>
-    axios.get('/accounts').then((res) => res.data)
+    axios.get('/api/accounts').then((res) => res.data)
   )
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const router = useRouter()

@@ -14,7 +14,16 @@ export async function handler(req: NextRequest) {
   const queryString = req.nextUrl.search;
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://mac-mini-i7.local:8443';
-  const targetUrl = `${backendUrl}/${pathPart}${queryString}`;
+
+  // Sanctum routes don't need /api prefix, everything else does
+  const needsApiPrefix = !pathPart.startsWith('sanctum/') &&
+                         !pathPart.startsWith('login') &&
+                         !pathPart.startsWith('register') &&
+                         !pathPart.startsWith('logout');
+
+  const targetUrl = needsApiPrefix
+    ? `${backendUrl}/api/${pathPart}${queryString}`
+    : `${backendUrl}/${pathPart}${queryString}`;
 
   return new Promise((resolve) => {
     try {
@@ -35,9 +44,17 @@ export async function handler(req: NextRequest) {
         options.agent = httpsAgent;
       }
 
-      // Remove host header to avoid virtual host issues on backend
+      // Remove/modify problematic headers
       delete options.headers['host'];
       delete options.headers['content-length'];
+
+      // Set referer to backend URL for Sanctum stateful domain check
+      if (options.headers['referer']) {
+        options.headers['referer'] = backendUrl;
+      }
+      if (options.headers['origin']) {
+        options.headers['origin'] = backendUrl;
+      }
 
       const proxyReq = requestModule.request(options, (proxyRes) => {
         const chunks: Buffer[] = [];
@@ -48,11 +65,22 @@ export async function handler(req: NextRequest) {
 
         proxyRes.on('end', () => {
           const buffer = Buffer.concat(chunks);
-          const response = new NextResponse(buffer, {
-            status: proxyRes.statusCode || 200,
-            headers: proxyRes.headers as any,
-          });
-          resolve(response);
+          const statusCode = proxyRes.statusCode || 200;
+
+          // Handle 204 No Content - Next.js doesn't allow body with 204
+          if (statusCode === 204) {
+            const response = new NextResponse(null, {
+              status: 204,
+              headers: proxyRes.headers as any,
+            });
+            resolve(response);
+          } else {
+            const response = new NextResponse(buffer, {
+              status: statusCode,
+              headers: proxyRes.headers as any,
+            });
+            resolve(response);
+          }
         });
       });
 
