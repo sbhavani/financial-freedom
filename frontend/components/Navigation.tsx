@@ -43,6 +43,15 @@ export default function Navigation({ user }: { user: any }) {
                                 }`}>
                                 Accounts
                             </Link>
+                            <Link
+                                href="/settings/categories"
+                                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 focus:outline-none transition duration-150 ease-in-out ${
+                                    pathname?.startsWith('/settings')
+                                        ? 'border-indigo-400 text-gray-900 focus:border-indigo-700'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:text-gray-700 focus:border-gray-300'
+                                }`}>
+                                Settings
+                            </Link>
                         </div>
                     </div>
 
@@ -135,6 +144,15 @@ export default function Navigation({ user }: { user: any }) {
                                     : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300'
                             }`}>
                             Accounts
+                        </Link>
+                        <Link
+                            href="/settings/categories"
+                            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                                pathname?.startsWith('/settings')
+                                    ? 'border-indigo-400 text-indigo-700 bg-indigo-50'
+                                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300'
+                            }`}>
+                            Settings
                         </Link>
                     </div>
 

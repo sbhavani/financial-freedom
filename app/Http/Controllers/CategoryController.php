@@ -18,28 +18,49 @@ class CategoryController extends Controller
 {
     public function index( Request $request )
     {
+        $groups = ( new IndexGroups() )->index( $request );
+
+        if ($request->wantsJson()) {
+            return response()->json($groups);
+        }
+
         return Inertia::render('Settings/Categories/Index', [
             'group' => 'settings',
             'subGroup' => 'categories',
-            'groups' => fn () => ( new IndexGroups() )->index( $request ),
+            'groups' => fn () => $groups,
         ]);
     }
 
     public function store( StoreCategoryRequest $request )
     {
         ( new StoreCategory() )->store( $request );
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Category created.']);
+        }
+
         return redirect()->back();
     }
 
     public function update( UpdateCategoryRequest $request, Category $category )
     {
         ( new UpdateCategory() )->update( $request, $category );
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Category updated.']);
+        }
+
         return redirect()->back();
     }
 
-    public function destroy( Category $category ): RedirectResponse
+    public function destroy( Request $request, Category $category )
     {
         ( new DeleteCategory() )->delete( $category );
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Category deleted.']);
+        }
+
         return redirect()->back();
     }
 }
