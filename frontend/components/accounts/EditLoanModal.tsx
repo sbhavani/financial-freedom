@@ -28,10 +28,10 @@ import { Loader2 } from 'lucide-react'
 const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  original_balance: z.coerce.number().optional(),
-  remaining_balance: z.coerce.number().optional(),
-  payment_amount: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  original_balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  remaining_balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  payment_amount: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  interest_rate: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
   opened_at: z.string().optional(),
 })
 
@@ -51,7 +51,7 @@ export default function EditLoanModal({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof accountSchema>>({
+  const form = useForm({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: account.name || '',

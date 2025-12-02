@@ -36,9 +36,9 @@ const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   brand: z.string().optional(),
-  balance: z.coerce.number().optional(),
-  credit_limit: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  credit_limit: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  interest_rate: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
 })
 
 interface EditCreditCardModalProps {
@@ -57,7 +57,7 @@ export default function EditCreditCardModal({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof accountSchema>>({
+  const form = useForm({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: account.name || '',

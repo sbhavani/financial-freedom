@@ -38,13 +38,13 @@ const accountSchema = z.object({
   institution_id: z.string().min(1, 'Institution is required'),
   description: z.string().optional(),
   type: z.string().optional(),
-  balance: z.coerce.number().optional(),
-  remaining_balance: z.coerce.number().optional(),
-  original_balance: z.coerce.number().optional(),
-  payment_amount: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  remaining_balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  original_balance: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  payment_amount: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
+  interest_rate: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
   date_opened: z.string().optional(),
-  credit_limit: z.coerce.number().optional(),
+  credit_limit: z.union([z.string(), z.number()]).pipe(z.coerce.number()).optional(),
   brand: z.string().optional(),
 })
 
@@ -64,7 +64,7 @@ export default function AddAccountModal({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof accountSchema>>({
+  const form = useForm({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       account_type: 'cash',

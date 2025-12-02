@@ -8,7 +8,7 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
 
-export async function handler(req: NextRequest) {
+async function handler(req: NextRequest): Promise<NextResponse> {
   // Extract the path after /api/
   const pathPart = req.nextUrl.pathname.replace(/^\/api\//, '');
   const queryString = req.nextUrl.search;
@@ -25,7 +25,7 @@ export async function handler(req: NextRequest) {
     ? `${backendUrl}/api/${pathPart}${queryString}`
     : `${backendUrl}/${pathPart}${queryString}`;
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     try {
       const url = new URL(targetUrl);
       const isHttps = url.protocol === 'https:';
