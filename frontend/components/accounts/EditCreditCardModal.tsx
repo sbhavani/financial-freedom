@@ -36,9 +36,9 @@ const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   brand: z.string().optional(),
-  balance: z.coerce.number().optional(),
-  credit_limit: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  balance: z.any().transform(v => Number(v)).optional(),
+  credit_limit: z.any().transform(v => Number(v)).optional(),
+  interest_rate: z.any().transform(v => Number(v)).optional(),
 })
 
 interface EditCreditCardModalProps {

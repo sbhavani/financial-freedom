@@ -36,8 +36,8 @@ const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   type: z.string().optional(),
-  balance: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  balance: z.any().transform(v => Number(v)).optional(),
+  interest_rate: z.any().transform(v => Number(v)).optional(),
 })
 
 interface EditCashAccountModalProps {

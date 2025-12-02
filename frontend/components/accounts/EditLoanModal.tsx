@@ -28,10 +28,10 @@ import { Loader2 } from 'lucide-react'
 const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  original_balance: z.coerce.number().optional(),
-  remaining_balance: z.coerce.number().optional(),
-  payment_amount: z.coerce.number().optional(),
-  interest_rate: z.coerce.number().optional(),
+  original_balance: z.any().transform(v => Number(v)).optional(),
+  remaining_balance: z.any().transform(v => Number(v)).optional(),
+  payment_amount: z.any().transform(v => Number(v)).optional(),
+  interest_rate: z.any().transform(v => Number(v)).optional(),
   opened_at: z.string().optional(),
 })
 
