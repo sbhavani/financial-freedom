@@ -30,14 +30,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Loader2 } from 'lucide-react'
 
 const accountSchema = z.object({
   account_type: z.string(),
   name: z.string().min(1, 'Name is required'),
   institution_id: z.string().min(1, 'Institution is required'),
   description: z.string().optional(),
-  // Conditional fields will be handled but we define them all here loosely or refine
-  type: z.string().optional(), // for cash account subtype
+  type: z.string().optional(),
   balance: z.coerce.number().optional(),
   remaining_balance: z.coerce.number().optional(),
   original_balance: z.coerce.number().optional(),
@@ -62,6 +62,7 @@ export default function AddAccountModal({
   institutions,
 }: AddAccountModalProps) {
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof accountSchema>>({
     resolver: zodResolver(accountSchema),
@@ -77,6 +78,7 @@ export default function AddAccountModal({
 
   const onSubmit = async (values: z.infer<typeof accountSchema>) => {
     setError(null)
+    setLoading(true)
     try {
       await axios.post('/accounts', values)
       form.reset()
@@ -84,7 +86,15 @@ export default function AddAccountModal({
       onClose()
     } catch (err: any) {
       console.error(err)
-      setError(err.response?.data?.message || 'Something went wrong')
+      if (err.response?.data?.errors) {
+         // Display validation errors if available
+         const validationErrors = Object.values(err.response.data.errors).flat().join(', ')
+         setError(validationErrors)
+      } else {
+         setError(err.response?.data?.message || 'Something went wrong')
+      }
+    } finally {
+        setLoading(false)
     }
   }
 
@@ -375,10 +385,13 @@ export default function AddAccountModal({
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
             <DialogFooter>
-               <Button type="button" variant="secondary" onClick={onClose}>
+               <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
                 Cancel
               </Button>
-              <Button type="submit">Create Account</Button>
+              <Button type="submit" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Account
+              </Button>
             </DialogFooter>
           </form>
         </Form>

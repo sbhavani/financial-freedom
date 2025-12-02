@@ -22,37 +22,22 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AddAccountModal from '@/components/accounts/AddAccountModal'
 import { useRouter } from 'next/navigation'
-
-interface Account {
-  id: number
-  name: string
-  balance?: number
-  current_balance?: number
-  remaining_balance?: number // Added remaining_balance
-  type: string
-  institution?: {
-    name: string
-  }
-}
-
-interface AccountsData {
-  cashAccounts: Account[]
-  creditCards: Account[]
-  loans: Account[]
-  institutions: any[]
-}
+import { useAuth } from '@/hooks/auth'
+import { Account, AccountsData, CashAccount, CreditCard, Loan } from '@/types/account'
 
 export default function AccountsPage() {
-  const { data, error, mutate } = useSWR('/accounts', () =>
+  const { user } = useAuth({ middleware: 'auth' })
+  const { data, error, mutate } = useSWR<AccountsData>('/accounts', () =>
     axios.get('/accounts').then((res) => res.data)
   )
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const router = useRouter()
 
+  if (!user) return <div>Loading auth...</div>
   if (error) return <div>Failed to load accounts</div>
   if (!data) return <div>Loading...</div>
 
-  const { cashAccounts, creditCards, loans } = data as AccountsData
+  const { cashAccounts, creditCards, loans } = data
 
   const formatCurrency = (amount: number | undefined) => {
     if (amount === undefined) return '-'
@@ -80,28 +65,34 @@ export default function AccountsPage() {
               </TableCell>
             </TableRow>
           ) : (
-             accounts.map((account) => (
-              <TableRow
-                key={account.id}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => {
-                    let routeType = '';
-                    if (type === 'Cash Accounts') routeType = 'cash-accounts';
-                    else if (type === 'Credit Cards') routeType = 'credit-cards';
-                    else if (type === 'Loans') routeType = 'loans';
-                    router.push(`/${routeType}/${account.id}`)
-                }}
-              >
-                <TableCell className="font-medium">{account.name}</TableCell>
-                <TableCell>{account.institution?.name || '-'}</TableCell>
-                <TableCell className="text-right">
-                    {type === 'Loans'
-                        ? formatCurrency(account.remaining_balance ?? account.current_balance ?? account.balance) // Check for loan specific balance field
-                        : formatCurrency(account.balance)
-                    }
-                </TableCell>
-              </TableRow>
-            ))
+             accounts.map((account) => {
+                // Determine display balance based on type
+                let displayBalance = account.balance;
+                if (type === 'Loans') {
+                    const loan = account as Loan;
+                    displayBalance = loan.remaining_balance ?? loan.balance;
+                }
+
+                return (
+                  <TableRow
+                    key={account.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => {
+                        let routeType = '';
+                        if (type === 'Cash Accounts') routeType = 'cash-accounts';
+                        else if (type === 'Credit Cards') routeType = 'credit-cards';
+                        else if (type === 'Loans') routeType = 'loans';
+                        router.push(`/${routeType}/${account.id}`)
+                    }}
+                  >
+                    <TableCell className="font-medium">{account.name}</TableCell>
+                    <TableCell>{account.institution?.name || '-'}</TableCell>
+                    <TableCell className="text-right">
+                        {formatCurrency(displayBalance)}
+                    </TableCell>
+                  </TableRow>
+                )
+            })
           )}
         </TableBody>
       </Table>
@@ -110,7 +101,6 @@ export default function AccountsPage() {
 
   const totalCash = cashAccounts?.reduce((acc, curr) => acc + (curr.balance || 0), 0) || 0
   const totalCredit = creditCards?.reduce((acc, curr) => acc + (curr.balance || 0), 0) || 0
-  // For loans, use remaining_balance if available, else balance
   const totalLoans = loans?.reduce((acc, curr) => acc + (curr.remaining_balance || curr.balance || 0), 0) || 0
 
   return (

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 
 const accountSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -48,6 +49,7 @@ export default function EditLoanModal({
   account,
 }: EditLoanModalProps) {
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof accountSchema>>({
     resolver: zodResolver(accountSchema),
@@ -64,13 +66,21 @@ export default function EditLoanModal({
 
   const onSubmit = async (values: z.infer<typeof accountSchema>) => {
     setError(null)
+    setLoading(true)
     try {
       await axios.put(`/loans/${account.id}`, values)
       onSuccess()
       onClose()
     } catch (err: any) {
       console.error(err)
-      setError(err.response?.data?.message || 'Something went wrong')
+      if (err.response?.data?.errors) {
+         const validationErrors = Object.values(err.response.data.errors).flat().join(', ')
+         setError(validationErrors)
+      } else {
+         setError(err.response?.data?.message || 'Something went wrong')
+      }
+    } finally {
+        setLoading(false)
     }
   }
 
@@ -188,10 +198,13 @@ export default function EditLoanModal({
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
             <DialogFooter>
-               <Button type="button" variant="secondary" onClick={onClose}>
+               <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </Form>
